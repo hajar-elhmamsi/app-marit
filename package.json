@@ -1,0 +1,13 @@
+{
+  "name": "navios-maritime-os-root",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Navios Maritime OS - Fullstack Maritime Intelligence Platform",
+  "scripts": {
+    "init:db": "node database/init_db.js",
+    "dev:backend": "npm --prefix backend start",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "build": "npm --prefix backend run build && npm --prefix frontend run build"
+  }
+}

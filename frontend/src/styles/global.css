@@ -1,0 +1,121 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ==========================================================================
+   NAVIOS MARITIME OS — PROFESSIONAL ENTERPRISE DESIGN SYSTEM
+   Theme: White + Deep Maritime Blue (#0B4F8A)
+   ========================================================================== */
+
+@layer base {
+  :root {
+    --primary: #0B4F8A;
+    --primary-dark: #123B63;
+    --primary-secondary: #1769AA;
+    --primary-light: #EAF4FB;
+    --primary-subtle: #F5F9FC;
+    --bg-main: #F5F7FA;
+    --surface: #FFFFFF;
+    --border: #E2E8F0;
+    --text-main: #172B4D;
+    --text-muted: #64748B;
+    --success: #16A34A;
+    --warning: #F59E0B;
+    --danger: #DC2626;
+  }
+
+  html, body {
+    @apply bg-[#F5F7FA] text-[#172B4D] font-sans antialiased;
+    color: #172B4D;
+    background-color: #F5F7FA;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold tracking-tight text-[#172B4D];
+  }
+}
+
+/* Custom Clean Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F1F5F9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+
+/* Enterprise Card Utilities */
+.enterprise-card {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.03);
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.enterprise-card-hover:hover {
+  border-color: #CBD5E1;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+}
+
+/* Table Utilities */
+.table-header {
+  background-color: #F8FAFC;
+  border-bottom: 1px solid #E2E8F0;
+  color: #64748B;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.table-row {
+  border-bottom: 1px solid #F1F5F9;
+  transition: background-color 0.12s ease;
+}
+
+.table-row:hover {
+  background-color: #F8FAFC;
+}
+
+/* Form Input Standards */
+.form-input {
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  background-color: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 0.5rem;
+  color: #172B4D;
+  font-size: 0.875rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #0B4F8A;
+  box-shadow: 0 0 0 3px rgba(11, 79, 138, 0.12);
+}
+
+.form-input::placeholder {
+  color: #94A3B8;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.375rem;
+}

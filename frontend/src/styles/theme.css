@@ -1,0 +1,110 @@
+/* Maritime OS - Theme & Design Tokens */
+:root {
+  /* Color Palette - Deep Ocean Tactical */
+  --bg-primary: #070c18;
+  --bg-secondary: #0c1527;
+  --bg-tertiary: #13223d;
+  --bg-elevated: #1a2c4e;
+  --bg-glass: rgba(12, 21, 39, 0.78);
+  --bg-glass-card: rgba(19, 34, 61, 0.65);
+  --bg-glass-hover: rgba(26, 44, 78, 0.85);
+
+  /* Tactical Accents */
+  --accent-cyan: #00f5d4;
+  --accent-cyan-glow: rgba(0, 245, 212, 0.35);
+  --accent-blue: #38bdf8;
+  --accent-blue-deep: #0284c7;
+  --accent-marine: #00b4d8;
+  --accent-gold: #f59e0b;
+  --accent-gold-glow: rgba(245, 158, 11, 0.3);
+  --accent-emerald: #10b981;
+  --accent-emerald-glow: rgba(16, 185, 129, 0.3);
+  --accent-rose: #f43f5e;
+  --accent-rose-glow: rgba(244, 63, 94, 0.35);
+  --accent-purple: #a855f7;
+
+  /* Typography Colors */
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --text-inverse: #030712;
+  --text-cyan: #22d3ee;
+  --text-gold: #fbbf24;
+
+  /* Borders & Shadows */
+  --border-subtle: rgba(148, 163, 184, 0.12);
+  --border-medium: rgba(56, 189, 248, 0.25);
+  --border-bright: rgba(0, 245, 212, 0.5);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 35px rgba(0, 0, 0, 0.6);
+  --shadow-tactical: 0 0 25px rgba(0, 245, 212, 0.15);
+
+  /* Fonts */
+  --font-heading: 'Outfit', -apple-system, sans-serif;
+  --font-body: 'Inter', -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Radius & Transitions */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-full: 9999px;
+  --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-smooth: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Day Mode (Harbor Master / Bright Office) */
+body.bridge-mode-day {
+  --bg-primary: #f0f4f8;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #e2e8f0;
+  --bg-elevated: #cbd5e1;
+  --bg-glass: rgba(255, 255, 255, 0.85);
+  --bg-glass-card: rgba(255, 255, 255, 0.9);
+  --bg-glass-hover: rgba(241, 245, 249, 0.95);
+
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  --text-inverse: #ffffff;
+  --text-cyan: #0284c7;
+
+  --border-subtle: rgba(15, 23, 42, 0.1);
+  --border-medium: rgba(2, 132, 199, 0.3);
+  --border-bright: rgba(2, 132, 199, 0.6);
+  --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 4px 16px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 10px 30px rgba(15, 23, 42, 0.12);
+  --shadow-tactical: 0 0 20px rgba(2, 132, 199, 0.12);
+}
+
+/* Red-Light Mode (Bridge Night Watch / Anti-Glare Tactical) */
+body.bridge-mode-red {
+  --bg-primary: #120202;
+  --bg-secondary: #1f0505;
+  --bg-tertiary: #300909;
+  --bg-elevated: #480f0f;
+  --bg-glass: rgba(31, 5, 5, 0.85);
+  --bg-glass-card: rgba(48, 9, 9, 0.75);
+  --bg-glass-hover: rgba(72, 15, 15, 0.9);
+
+  --accent-cyan: #ff4d4d;
+  --accent-cyan-glow: rgba(255, 77, 77, 0.4);
+  --accent-blue: #ff6666;
+  --accent-marine: #ff3333;
+  --accent-gold: #ff9900;
+  --accent-emerald: #ff5555;
+  --accent-rose: #ff1a1a;
+
+  --text-primary: #ffebeb;
+  --text-secondary: #ff9999;
+  --text-muted: #cc6666;
+  --text-cyan: #ff4d4d;
+
+  --border-subtle: rgba(255, 77, 77, 0.15);
+  --border-medium: rgba(255, 77, 77, 0.35);
+  --border-bright: rgba(255, 77, 77, 0.7);
+  --shadow-tactical: 0 0 25px rgba(255, 77, 77, 0.2);
+}
