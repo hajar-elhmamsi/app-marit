@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { maritimeService } from '../api/client';
 import { StatCard } from '../components/UI/StatCard';
 import { Badge } from '../components/UI/Badge';
-import { useAuth } from '../context/AuthContext';
 import {
   CalendarCheck,
   Radio,
@@ -11,7 +10,6 @@ import {
   Anchor,
   Layers,
   ArrowRight,
-  Plus,
   CheckCircle2,
   Building2
 } from 'lucide-react';
@@ -21,8 +19,6 @@ import { VisiteMaritime } from '../types';
 export const DashboardPage: React.FC = () => {
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const { can } = useAuth();
-
   useEffect(() => {
     const fetchStats = async () => {
       setLoading(true);
@@ -60,15 +56,6 @@ export const DashboardPage: React.FC = () => {
           </p>
         </div>
 
-        {can('visites.create') && (
-          <Link
-            to="/visites"
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#0B4F8A] hover:bg-[#083B68] text-white font-semibold text-sm rounded-lg shadow-sm transition-colors self-start sm:self-auto"
-          >
-            <Plus size={18} />
-            <span>Déclarer une escale</span>
-          </Link>
-        )}
       </div>
 
       {/* KPI Cards Grid */}

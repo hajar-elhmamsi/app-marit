@@ -5,6 +5,7 @@ import { Badge } from '../components/UI/Badge';
 import { Modal } from '../components/UI/Modal';
 import { ConfirmDialog } from '../components/UI/ConfirmDialog';
 import { useToast } from '../context/ToastContext';
+import { useAuth } from '../context/AuthContext';
 import {
   Anchor,
   Plus,
@@ -38,6 +39,7 @@ export const PortsPage: React.FC = () => {
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   const { showToast } = useToast();
+  const { can } = useAuth();
 
   const loadPorts = async () => {
     setLoading(true);
@@ -63,7 +65,7 @@ export const PortsPage: React.FC = () => {
 
   const validateForm = () => {
     const errors: Record<string, string> = {};
-    if (!formData.code.trim()) errors.code = 'Le code UN/LOCODE est obligatoire (ex: FRFOS).';
+  if (!formData.code.trim()) errors.code = 'Le code UN/LOCODE est obligatoire (MACAS).';
     else if (formData.code.trim().length < 3) errors.code = 'Le code doit comporter au moins 3 caractères.';
 
     if (!formData.nom.trim()) errors.nom = 'Le nom du port est obligatoire.';
@@ -133,13 +135,13 @@ export const PortsPage: React.FC = () => {
           </p>
         </div>
 
-        <button
+        {can('ports.manage') && <button
           onClick={handleOpenCreate}
           className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#0B4F8A] hover:bg-[#083B68] text-white font-semibold text-sm rounded-lg shadow-sm transition-colors self-start sm:self-auto"
         >
           <Plus size={18} />
           <span>Nouveau port</span>
-        </button>
+        </button>}
       </div>
 
       {/* Filter Bar */}
@@ -283,7 +285,7 @@ export const PortsPage: React.FC = () => {
               type="text"
               value={formData.code}
               onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
-              placeholder="Ex: FRFOS, MAPTM, NLRTM"
+              placeholder="MACAS"
               maxLength={10}
               className="form-input font-mono uppercase font-bold"
             />

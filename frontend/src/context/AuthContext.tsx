@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import { User } from '../types';
 import { maritimeService, DEFAULT_ROLE_PERMISSIONS } from '../api/client';
 
@@ -28,23 +28,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return u;
       } catch {}
     }
-    return {
-      id: 1,
-      name: 'Direction Régionale ANP Casablanca',
-      email: 'admin@portcasablanca.ma',
-      role: 'admin',
-      is_active: true,
-      service: 'Agence Nationale des Ports (ANP)',
-      permissions: DEFAULT_ROLE_PERMISSIONS.admin,
-    };
+    return null;
   });
 
-  const [token, setToken] = useState<string | null>(() => localStorage.getItem('maritime_token') || 'demo_token_admin');
+  const [token, setToken] = useState<string | null>(() => localStorage.getItem('maritime_token'));
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const can = (permissionCode: string): boolean => {
     if (!user) return false;
-    if (user.role === 'admin') return true; // Admin has full access
+    if (user.role === 'agent_maritime' && permissionCode === 'visites.delete') return true;
+    if (user.role === 'admin' && permissionCode === 'visites.create') return false;
+    if (user.role === 'admin') return true; // Admin has access to all other functions
     const permissions = user.permissions || DEFAULT_ROLE_PERMISSIONS[user.role as keyof typeof DEFAULT_ROLE_PERMISSIONS] || [];
     return permissions.includes(permissionCode) || permissions.includes('*');
   };

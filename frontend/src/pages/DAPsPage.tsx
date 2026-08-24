@@ -264,7 +264,7 @@ export const DAPsPage: React.FC = () => {
                             title="Transmettre à la Capitainerie"
                           >
                             <Send size={13} />
-                            <span>Envoyer</span>
+                            <span>Soumettre l'escale</span>
                           </button>
                         )}
 

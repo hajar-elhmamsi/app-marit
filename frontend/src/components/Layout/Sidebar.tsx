@@ -1,5 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import {
   LayoutDashboard,
   CalendarCheck,
@@ -12,16 +13,19 @@ import {
 } from 'lucide-react';
 
 export const Sidebar: React.FC = () => {
+  const { can } = useAuth();
   const navLinks = [
-    { to: '/dashboard', label: 'Tableau de bord', icon: LayoutDashboard },
-    { to: '/visites', label: 'Visites maritimes', icon: CalendarCheck, badge: 'Workflow' },
-    { to: '/daps', label: 'Accès portuaire (DAP)', icon: FileCheck2 },
-    { to: '/navires', label: 'Flotte des navires', icon: Ship },
-    { to: '/ports', label: 'Ports maritimes', icon: Anchor },
-    { to: '/terminals', label: 'Terminaux à quai', icon: Layers },
-    { to: '/audit-logs', label: 'Journal d\'audit', icon: History },
-    { to: '/rbac', label: 'Utilisateurs & RBAC', icon: Users, badge: 'Sécurité' },
-  ];
+    { to: '/dashboard', label: 'Tableau de bord', icon: LayoutDashboard, permission: null },
+    { to: '/visites', label: 'Visites maritimes', icon: CalendarCheck, badge: 'Workflow', permission: 'visites.view' },
+    { to: '/daps', label: 'Accès portuaire (DAP)', icon: FileCheck2, permission: 'dap.create' },
+    { to: '/navires', label: 'Flotte des navires', icon: Ship, permission: 'navires.view' },
+    { to: '/terminals', label: 'Terminaux à quai', icon: Layers, permission: 'terminals.manage' },
+    { to: '/audit-logs', label: 'Journal d\'audit', icon: History, permission: 'audit.view' },
+    ...(can('rbac.manage')
+      ? [{ to: '/rbac', label: 'Utilisateurs & RBAC', icon: Users, badge: 'Sécurité', permission: 'rbac.manage' }]
+      : []),
+  ].filter((item) => item.to !== '/daps' || can('dap.create') || can('dap.validate') || can('dap.refuse'))
+    .filter((item) => item.to === '/daps' || !item.permission || can(item.permission));
 
   return (
     <aside className="w-64 bg-white border-r border-[#E2E8F0] flex flex-col flex-shrink-0 select-none z-30 min-h-screen">

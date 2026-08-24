@@ -4,6 +4,7 @@ import { Terminal, Port } from '../types';
 import { Badge } from '../components/UI/Badge';
 import { Modal } from '../components/UI/Modal';
 import { useToast } from '../context/ToastContext';
+import { useAuth } from '../context/AuthContext';
 import {
   Layers,
   Plus,
@@ -41,6 +42,7 @@ export const TerminauxPage: React.FC = () => {
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   const { showToast } = useToast();
+  const { can } = useAuth();
 
   const loadData = async () => {
     setLoading(true);
@@ -175,13 +177,13 @@ export const TerminauxPage: React.FC = () => {
           </p>
         </div>
 
-        <button
+        {can('terminals.manage') && <button
           onClick={handleOpenCreate}
           className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#0B4F8A] hover:bg-[#083B68] text-white font-semibold text-sm rounded-lg shadow-sm transition-colors self-start sm:self-auto"
         >
           <Plus size={18} />
           <span>Nouveau terminal</span>
-        </button>
+        </button>}
       </div>
 
       {/* Filter Bar */}
@@ -303,13 +305,13 @@ export const TerminauxPage: React.FC = () => {
                     </td>
 
                     <td className="px-5 py-3.5 text-right">
-                      <button
+                      {can('terminals.manage') && <button
                         onClick={() => handleOpenEdit(term)}
                         className="p-1.5 rounded-lg text-[#64748B] hover:text-[#0B4F8A] hover:bg-[#EAF4FB] transition-colors"
                         title="Modifier"
                       >
                         <Edit2 size={16} />
-                      </button>
+                      </button>}
                     </td>
                   </tr>
                 ))

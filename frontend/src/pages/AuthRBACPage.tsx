@@ -813,19 +813,6 @@ export const AuthRBACPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex items-center gap-3 pt-2">
-            <input
-              type="checkbox"
-              id="user_active_checkbox"
-              checked={formData.is_active}
-              onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-              className="w-4 h-4 rounded border-[#CBD5E1] text-[#0B4F8A] focus:ring-[#0B4F8A] cursor-pointer"
-            />
-            <label htmlFor="user_active_checkbox" className="text-sm text-[#334155] cursor-pointer select-none">
-              Compte utilisateur actif et autorisé à se connecter
-            </label>
-          </div>
-
           <div className="mt-6 pt-4 border-t border-[#E2E8F0] flex items-center justify-end gap-3">
             <button
               type="button"

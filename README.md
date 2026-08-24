@@ -29,7 +29,7 @@ Plateforme web d'administration portuaire et de gestion des escales maritimes po
 
 ### 1. Cloner le dépôt
 ```bash
-git clone https://github.com/addyas19982003/navios-port-casablanca.git
+git clone https://github.com/hajar-elhmamsi/navios-port-casablanca.git
 cd navios-port-casablanca
 ```
 
@@ -52,5 +52,6 @@ npm start
 
 ## 👤 Auteur & Licence
 
-* **GitHub** : [@addyas19982003](https://github.com/addyas19982003)
-* **Licence** : Propriétaire / ANP PortCall System
+* **Auteur** : Hajar Elhmamsi
+* **GitHub** : [@hajar-elhmamsi](https://github.com/hajar-elhmamsi)
+* **Licence** : Propriétaire — Hajar Elhmamsi

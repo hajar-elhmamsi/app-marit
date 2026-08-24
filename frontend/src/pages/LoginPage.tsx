@@ -12,12 +12,12 @@ import {
 import { useToast } from '../context/ToastContext';
 
 export const LoginPage: React.FC = () => {
-  const [email, setEmail] = useState('admin@portcasablanca.ma');
-  const [password, setPassword] = useState('password');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const { login, switchDemoUser } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const { showToast } = useToast();
@@ -45,17 +45,6 @@ export const LoginPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleQuickLogin = (role: 'agent_maritime' | 'capitainerie' | 'admin') => {
-    switchDemoUser(role);
-    const label = role === 'admin'
-      ? 'Direction ANP'
-      : role === 'capitainerie'
-      ? 'Capitainerie (VTS)'
-      : 'Consignataire (CMA CGM)';
-    showToast(`Connecté en tant que : ${label}`, 'info', 'Accès Démo');
-    navigate(from, { replace: true });
   };
 
   return (
@@ -138,41 +127,6 @@ export const LoginPage: React.FC = () => {
             </button>
           </form>
 
-          {/* Quick Demo Switcher - Sober & Minimal */}
-          <div className="pt-5 border-t border-[#F1F5F9] space-y-2.5">
-            <div className="text-center text-[11px] font-semibold text-[#94A3B8] uppercase tracking-wider">
-              Comptes Démo (1-Clic)
-            </div>
-
-            <div className="grid grid-cols-3 gap-2">
-              <button
-                type="button"
-                onClick={() => handleQuickLogin('agent_maritime')}
-                className="py-2 px-2 text-center rounded-lg border border-[#E2E8F0] hover:border-[#0B4F8A] hover:bg-[#EAF4FB] text-xs font-semibold text-[#172B4D] hover:text-[#0B4F8A] transition-colors"
-                title="Consignataire (CMA CGM Maroc)"
-              >
-                Consignataire
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleQuickLogin('capitainerie')}
-                className="py-2 px-2 text-center rounded-lg border border-[#E2E8F0] hover:border-[#0B4F8A] hover:bg-[#EAF4FB] text-xs font-semibold text-[#172B4D] hover:text-[#0B4F8A] transition-colors"
-                title="Capitainerie (VTS Casablanca)"
-              >
-                Capitainerie
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleQuickLogin('admin')}
-                className="py-2 px-2 text-center rounded-lg border border-[#E2E8F0] hover:border-[#0B4F8A] hover:bg-[#EAF4FB] text-xs font-semibold text-[#172B4D] hover:text-[#0B4F8A] transition-colors"
-                title="Direction ANP Casablanca"
-              >
-                Admin ANP
-              </button>
-            </div>
-          </div>
         </div>
 
         {/* Minimal Institutional Footer */}

@@ -22,12 +22,12 @@ interface Waypoint {
 }
 
 export const VoyagePlanner: React.FC = () => {
-  const [originPortCode, setOriginPortCode] = useState<string>('NLRTM');
-  const [destPortCode, setDestPortCode] = useState<string>('EGPSD');
+  const [originPortCode, setOriginPortCode] = useState<string>('MACAS');
+  const [destPortCode, setDestPortCode] = useState<string>('MACAS');
   const [steamingSpeed, setSteamingSpeed] = useState<number>(17.5); // Knots
 
   const originPort = MAJOR_PORTS.find((p) => p.code === originPortCode) || MAJOR_PORTS[0];
-  const destPort = MAJOR_PORTS.find((p) => p.code === destPortCode) || MAJOR_PORTS[3];
+  const destPort = MAJOR_PORTS.find((p) => p.code === destPortCode) || MAJOR_PORTS[0];
 
   // Mock passage waypoints
   const waypoints: Waypoint[] = [

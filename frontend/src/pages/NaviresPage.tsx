@@ -3,12 +3,15 @@ import { maritimeService } from '../api/client';
 import { Navire } from '../types';
 import { Badge } from '../components/UI/Badge';
 import { Modal } from '../components/UI/Modal';
+import { ConfirmDialog } from '../components/UI/ConfirmDialog';
 import { useToast } from '../context/ToastContext';
+import { useAuth } from '../context/AuthContext';
 import {
   Ship,
   Plus,
   Search,
   Edit2,
+  Trash2,
   Flag,
   Filter,
   RefreshCw
@@ -23,6 +26,7 @@ export const NaviresPage: React.FC = () => {
   // Modals
   const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
   const [editingNavire, setEditingNavire] = useState<Navire | null>(null);
+  const [deletingNavire, setDeletingNavire] = useState<Navire | null>(null);
 
   // Form states
   const [formData, setFormData] = useState({
@@ -38,6 +42,7 @@ export const NaviresPage: React.FC = () => {
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   const { showToast } = useToast();
+  const { can } = useAuth();
 
   const loadNavires = async () => {
     setLoading(true);
@@ -129,6 +134,18 @@ export const NaviresPage: React.FC = () => {
     }
   };
 
+  const handleConfirmDelete = async () => {
+    if (!deletingNavire) return;
+    try {
+      await maritimeService.deleteNavire(deletingNavire.id);
+      showToast(`Le navire "${deletingNavire.nom}" a été supprimé.`, 'success', 'Navire Supprimé');
+      setDeletingNavire(null);
+      loadNavires();
+    } catch {
+      showToast('Ce navire est lié à une escale et ne peut pas être supprimé.', 'error');
+    }
+  };
+
   const formatVesselType = (type: Navire['type_navire']) => {
     switch (type) {
       case 'porte_conteneurs': return 'Porte-conteneurs';
@@ -155,13 +172,13 @@ export const NaviresPage: React.FC = () => {
           </p>
         </div>
 
-        <button
+        {can('navires.manage') && <button
           onClick={handleOpenCreate}
           className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#0B4F8A] hover:bg-[#083B68] text-white font-semibold text-sm rounded-lg shadow-sm transition-colors self-start sm:self-auto"
         >
           <Plus size={18} />
           <span>Nouveau navire</span>
-        </button>
+        </button>}
       </div>
 
       {/* Filter Bar */}
@@ -269,13 +286,24 @@ export const NaviresPage: React.FC = () => {
                     </td>
 
                     <td className="px-5 py-3.5 text-right">
-                      <button
-                        onClick={() => handleOpenEdit(nav)}
-                        className="p-1.5 rounded-lg text-[#64748B] hover:text-[#0B4F8A] hover:bg-[#EAF4FB] transition-colors"
-                        title="Modifier"
-                      >
-                        <Edit2 size={16} />
-                      </button>
+                      {can('navires.manage') && (
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => handleOpenEdit(nav)}
+                            className="p-1.5 rounded-lg text-[#64748B] hover:text-[#0B4F8A] hover:bg-[#EAF4FB] transition-colors"
+                            title="Modifier"
+                          >
+                            <Edit2 size={16} />
+                          </button>
+                          <button
+                            onClick={() => setDeletingNavire(nav)}
+                            className="p-1.5 rounded-lg text-[#64748B] hover:text-[#DC2626] hover:bg-[#FEE2E2] transition-colors"
+                            title="Supprimer"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      )}
                     </td>
                   </tr>
                 ))
@@ -417,6 +445,16 @@ export const NaviresPage: React.FC = () => {
           </div>
         </form>
       </Modal>
+
+      <ConfirmDialog
+        isOpen={!!deletingNavire}
+        onClose={() => setDeletingNavire(null)}
+        onConfirm={handleConfirmDelete}
+        title="Supprimer le navire"
+        message={`Voulez-vous supprimer le navire ${deletingNavire?.nom} ? Cette action est définitive.`}
+        confirmLabel="Supprimer"
+        isDestructive
+      />
     </div>
   );
 };

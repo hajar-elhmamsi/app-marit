@@ -51,9 +51,6 @@ class DatabaseSeeder extends Seeder
 
         // 2. Ports Réseau ANP Maroc
         $portCasa = Port::create(['code' => 'MACAS', 'nom' => 'Grand Port de Casablanca (ANP)', 'pays' => 'Maroc', 'is_active' => true]);
-        $portTM = Port::create(['code' => 'MAPTM', 'nom' => 'Port Tanger Med', 'pays' => 'Maroc', 'is_active' => true]);
-        $portJorf = Port::create(['code' => 'MAJOR', 'nom' => 'Port de Jorf Lasfar (OCP)', 'pays' => 'Maroc', 'is_active' => true]);
-        $portAgadir = Port::create(['code' => 'MAAGA', 'nom' => 'Port d\'Agadir (ANP)', 'pays' => 'Maroc', 'is_active' => true]);
 
         // 3. Terminaux Réels du Port de Casablanca
         $termTc3 = Terminal::create(['port_id' => $portCasa->id, 'code' => 'TERM-CASA-TC3', 'nom' => 'Terminal à Conteneurs 3 (Marsa Maroc TC3)', 'type_terminal' => 'conteneurs', 'is_active' => true]);
@@ -61,7 +58,6 @@ class DatabaseSeeder extends Seeder
         $termRoro = Terminal::create(['port_id' => $portCasa->id, 'code' => 'TERM-CASA-RORO', 'nom' => 'Terminal Roulier & Véhicules (Bassin Tarik)', 'type_terminal' => 'passagers', 'is_active' => true]);
         $termPhosphates = Terminal::create(['port_id' => $portCasa->id, 'code' => 'TERM-CASA-PHOSPHATES', 'nom' => 'Terminal Phosphates & Vracs Minéraliers (OCP)', 'type_terminal' => 'vraquier', 'is_active' => true]);
         $termPetrole = Terminal::create(['port_id' => $portCasa->id, 'code' => 'TERM-CASA-PETROLE', 'nom' => 'Terminal Hydrocarbures Jetée Moulay Youssef', 'type_terminal' => 'petrolier', 'is_active' => true]);
-        $termTmTc1 = Terminal::create(['port_id' => $portTM->id, 'code' => 'TERM-TC1-TM', 'nom' => 'Terminal Conteneurs 1 Tanger Med', 'type_terminal' => 'conteneurs', 'is_active' => true]);
 
         // 4. Navires Réalistes Casablanca
         $nav1 = Navire::create(['imo' => '9367000', 'nom' => 'CMA CGM CASABLANCA', 'pavillon' => 'France', 'type_navire' => 'porte_conteneurs', 'longueur_m' => 260.0, 'tirant_eau_m' => 13.5, 'jauge_brute' => 54000, 'is_active' => true]);

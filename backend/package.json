@@ -3,6 +3,11 @@
   "version": "1.0.0",
   "type": "module",
   "description": "Navios Maritime OS - Backend REST API",
+  "author": {
+    "name": "Hajar Elhmamsi",
+    "url": "https://github.com/hajar-elhmamsi"
+  },
+  "license": "UNLICENSED",
   "main": "src/server.ts",
   "scripts": {
     "dev": "tsx watch src/server.ts",

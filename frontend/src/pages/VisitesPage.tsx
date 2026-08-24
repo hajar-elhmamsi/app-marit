@@ -3,6 +3,7 @@ import { maritimeService } from '../api/client';
 import { VisiteMaritime, Navire, Terminal } from '../types';
 import { Badge } from '../components/UI/Badge';
 import { Modal } from '../components/UI/Modal';
+import { ConfirmDialog } from '../components/UI/ConfirmDialog';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
@@ -14,7 +15,8 @@ import {
   CheckCircle,
   XCircle,
   RefreshCw,
-  Eye
+  Eye,
+  Trash2
 } from 'lucide-react';
 
 export const VisitesPage: React.FC = () => {
@@ -38,6 +40,7 @@ export const VisitesPage: React.FC = () => {
 
   const [cancellingVisite, setCancellingVisite] = useState<VisiteMaritime | null>(null);
   const [cancelMotif, setCancelMotif] = useState<string>('');
+  const [deletingVisite, setDeletingVisite] = useState<VisiteMaritime | null>(null);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -176,6 +179,18 @@ export const VisitesPage: React.FC = () => {
       loadData();
     } catch (err) {
       showToast('Erreur lors de l\'annulation.', 'error');
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deletingVisite) return;
+    try {
+      await maritimeService.deleteVisite(deletingVisite.id);
+      showToast(`L'escale ${deletingVisite.numero_visite} et son DAP ont été supprimés.`, 'success', 'Escale Supprimée');
+      setDeletingVisite(null);
+      loadData();
+    } catch {
+      showToast('Impossible de supprimer cette escale.', 'error');
     }
   };
 
@@ -344,6 +359,16 @@ export const VisitesPage: React.FC = () => {
                         {/* Transition: Prévue -> Activer */}
                         {visite.statut === 'prevue' && (
                           <>
+                            {can('visites.delete') && (
+                              <button
+                                onClick={() => setDeletingVisite(visite)}
+                                className="px-2.5 py-1 text-xs font-semibold rounded-md bg-[#FEE2E2] text-[#DC2626] hover:bg-red-200 border border-red-200 flex items-center gap-1 transition-colors"
+                                title="Supprimer l'escale"
+                              >
+                                <Trash2 size={16} />
+                                <span>Supprimer</span>
+                              </button>
+                            )}
                             {can('visites.activate') && (
                               <button
                                 onClick={() => handleOpenActiver(visite)}
@@ -355,15 +380,6 @@ export const VisitesPage: React.FC = () => {
                               </button>
                             )}
 
-                            {can('visites.cancel') && (
-                              <button
-                                onClick={() => handleOpenAnnuler(visite)}
-                                className="p-1.5 rounded-lg text-[#64748B] hover:text-[#DC2626] hover:bg-[#FEE2E2] transition-colors"
-                                title="Annuler"
-                              >
-                                <XCircle size={16} />
-                              </button>
-                            )}
                           </>
                         )}
 
@@ -472,6 +488,16 @@ export const VisitesPage: React.FC = () => {
           </div>
         </form>
       </Modal>
+
+      <ConfirmDialog
+        isOpen={!!deletingVisite}
+        onClose={() => setDeletingVisite(null)}
+        onConfirm={handleConfirmDelete}
+        title="Supprimer l'escale"
+        message={`Voulez-vous supprimer ${deletingVisite?.numero_visite} ? Le DAP associé sera supprimé automatiquement.`}
+        confirmLabel="Supprimer"
+        isDestructive
+      />
 
       {/* Modal Activation Escale */}
       <Modal

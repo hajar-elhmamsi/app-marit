@@ -3,7 +3,13 @@
     "type": "project",
     "description": "API REST Laravel de Gestion des Escales Maritimes",
     "keywords": ["maritime", "port-call", "laravel", "sanctum", "api"],
-    "license": "MIT",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "Hajar Elhmamsi",
+            "homepage": "https://github.com/hajar-elhmamsi"
+        }
+    ],
     "require": {
         "php": "^8.2",
         "guzzlehttp/guzzle": "^7.2",

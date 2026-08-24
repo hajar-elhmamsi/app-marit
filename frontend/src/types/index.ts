@@ -63,7 +63,7 @@ export interface Navire {
   imo: string;
   nom: string;
   pavillon: string;
-  type_navire: 'porte_conteneurs' | 'petrolier' | 'vraquier' | 'gazier' | 'roulier' | 'remorqueur';
+  type_navire: 'porte_conteneurs' | 'petrolier' | 'vraquier' | 'gazier' | 'roulier' | 'remorqueur' | 'passagers';
   longueur_m: number;
   tirant_eau_m: number;
   jauge_brute: number;

@@ -24,6 +24,7 @@ api.interceptors.request.use((config) => {
 export const ALL_PERMISSIONS: Permission[] = [
   { id: '1', module: 'Visites Maritimes Casablanca', code: 'visites.view', label: 'Consulter les escales', description: 'Accès en lecture aux mouvements et visites des navires au port de Casablanca', roles: { admin: true, capitainerie: true, agent_maritime: true } },
   { id: '2', module: 'Visites Maritimes Casablanca', code: 'visites.create', label: 'Déclarer une escale', description: 'Déclaration préalable d\'escale (ETA/ETD) à la capitainerie de Casablanca', roles: { admin: true, capitainerie: false, agent_maritime: true } },
+  { id: '3', module: 'Visites Maritimes Casablanca', code: 'visites.delete', label: 'Supprimer une escale', description: 'Suppression d\'une escale créée par erreur avant son traitement', roles: { admin: true, capitainerie: false, agent_maritime: true } },
   { id: '3', module: 'Visites Maritimes Casablanca', code: 'visites.activate', label: 'Activer l\'accostage (ATA)', description: 'Validation VTS de l\'entrée au bassin (Delpit / Moulay Youssef / TC3)', roles: { admin: true, capitainerie: true, agent_maritime: false } },
   { id: '4', module: 'Visites Maritimes Casablanca', code: 'visites.close', label: 'Clôturer le départ (ATD)', description: 'Validation de l\'appareillage en rade et clôture de l\'escale', roles: { admin: true, capitainerie: true, agent_maritime: false } },
   { id: '5', module: 'Visites Maritimes Casablanca', code: 'visites.cancel', label: 'Annuler une escale', description: 'Annulation formelle avec motif officiel (météo, déroutement)', roles: { admin: true, capitainerie: true, agent_maritime: true } },
@@ -54,7 +55,7 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<UserRole, string[]> = {
     'audit.view',
   ],
   agent_maritime: [
-    'visites.view', 'visites.create', 'visites.cancel',
+    'visites.view', 'visites.create', 'visites.delete', 'visites.cancel',
     'dap.create', 'dap.send',
     'navires.view', 'navires.manage',
   ],
@@ -124,6 +125,12 @@ let mockUsers: User[] = [
   }
 ];
 
+const mockPasswords: Record<string, string> = {
+  'admin@portcasablanca.ma': 'password',
+  'agent@portcasablanca.ma': 'password',
+  'capitainerie@portcasablanca.ma': 'password',
+};
+
 let mockPorts: Port[] = [
   { id: 1, code: 'MACAS', nom: 'Grand Port de Casablanca (ANP)', pays: 'Maroc', is_active: true, terminals_count: 5 },
   { id: 2, code: 'MAPTM', nom: 'Port Tanger Med', pays: 'Maroc', is_active: true, terminals_count: 2 },
@@ -149,6 +156,16 @@ let mockNavires: Navire[] = [
   { id: 5, imo: '9512340', nom: 'ATLAS PETROLEUM', pavillon: 'Panama', type_navire: 'petrolier', longueur_m: 183.0, tirant_eau_m: 11.5, jauge_brute: 29500, is_active: true },
   { id: 6, imo: '9654987', nom: 'TANGER-CASA EXPRESS', pavillon: 'Maroc', type_navire: 'passagers', longueur_m: 130.0, tirant_eau_m: 6.8, jauge_brute: 15000, is_active: true },
 ];
+
+const MOCK_NAVires_KEY = 'navios_mock_navires';
+
+try {
+  const savedNavires = localStorage.getItem(MOCK_NAVires_KEY);
+  if (savedNavires) {
+    const parsedNavires = JSON.parse(savedNavires);
+    if (Array.isArray(parsedNavires)) mockNavires = parsedNavires;
+  }
+} catch {}
 
 let mockDAPs: DAP[] = [
   { id: 1, numero_dap: 'DAP-CASA-2026-001', visite_maritime_id: 1, statut: 'accepte', date_demande: '2026-08-14 08:30', date_traitement: '2026-08-14 11:00', remarques: 'Demande prioritaire accostage TC3 Marsa Maroc (conteneurs frigorifiques)' },
@@ -224,6 +241,42 @@ let mockVisites: VisiteMaritime[] = [
   },
 ];
 
+const MOCK_VISITES_KEY = 'navios_mock_visites';
+const MOCK_DAPS_KEY = 'navios_mock_daps';
+
+try {
+  const savedVisites = localStorage.getItem(MOCK_VISITES_KEY);
+  if (savedVisites) {
+    const parsedVisites = JSON.parse(savedVisites);
+    if (Array.isArray(parsedVisites)) mockVisites = parsedVisites;
+  }
+  const savedDaps = localStorage.getItem(MOCK_DAPS_KEY);
+  if (savedDaps) {
+    const parsedDaps = JSON.parse(savedDaps);
+    if (Array.isArray(parsedDaps)) mockDAPs = parsedDaps;
+  }
+} catch {}
+
+const persistMockVisits = () => {
+  localStorage.setItem(MOCK_VISITES_KEY, JSON.stringify(mockVisites));
+  localStorage.setItem(MOCK_DAPS_KEY, JSON.stringify(mockDAPs));
+};
+
+const loadPersistedMockVisits = () => {
+  try {
+    const savedVisites = localStorage.getItem(MOCK_VISITES_KEY);
+    if (savedVisites) {
+      const parsedVisites = JSON.parse(savedVisites);
+      if (Array.isArray(parsedVisites)) mockVisites = parsedVisites;
+    }
+    const savedDaps = localStorage.getItem(MOCK_DAPS_KEY);
+    if (savedDaps) {
+      const parsedDaps = JSON.parse(savedDaps);
+      if (Array.isArray(parsedDaps)) mockDAPs = parsedDaps;
+    }
+  } catch {}
+};
+
 let mockAuditLogs: AuditLog[] = [
   { id: 1, action: 'CREATE', entite_type: 'VisiteMaritime', entite_id: 1, created_at: '2026-08-14 08:30', user: mockUsers[1], ip_address: '196.200.145.12', details: { escale: 'ESC-CASA-2026-001', navire: 'CMA CGM CASABLANCA', quai: 'TC3 Marsa Maroc' } },
   { id: 2, action: 'CREATE', entite_type: 'DAP', entite_id: 1, created_at: '2026-08-14 08:30', user: mockUsers[1], ip_address: '196.200.145.12', details: { numero_dap: 'DAP-CASA-2026-001', port: 'Port de Casablanca (MACAS)' } },
@@ -239,6 +292,7 @@ function logAudit(action: AuditLog['action'], entiteType: string, entiteId: numb
       actor = JSON.parse(currentTokenUser);
     } catch {}
   }
+    loadPersistedMockVisits();
   const newLog: AuditLog = {
     id: mockAuditLogs.length + 1,
     action,
@@ -261,12 +315,13 @@ export const maritimeService = {
     } catch {}
 
     const found = mockUsers.find((u) => u.email.toLowerCase() === email.toLowerCase());
-    const user = found || mockUsers[0];
+    if (!found || !found.is_active || mockPasswords[found.email.toLowerCase()] !== password) {
+      throw new Error('Email ou mot de passe incorrect.');
+    }
+
+    const user = found;
     return {
-      user: {
-        ...user,
-        permissions: user.permissions || DEFAULT_ROLE_PERMISSIONS[user.role],
-      },
+      user,
       token: 'mock_token_' + user.role,
     };
   },
@@ -333,6 +388,12 @@ export const maritimeService = {
     } catch {}
 
     const role = data.role || 'agent_maritime';
+    if (!data.email || !data.password) {
+      throw new Error('Un email et un mot de passe sont obligatoires.');
+    }
+    if (mockUsers.some((u) => u.email.toLowerCase() === data.email!.toLowerCase())) {
+      throw new Error('Cette adresse email est déjà utilisée.');
+    }
     const newUser: User = {
       id: mockUsers.length + 1,
       name: data.name || 'Nouvel Utilisateur Port Casablanca',
@@ -346,6 +407,7 @@ export const maritimeService = {
       last_login_at: 'Jamais',
     };
     mockUsers.unshift(newUser);
+    mockPasswords[newUser.email.toLowerCase()] = data.password;
     logAudit('CREATE', 'User', newUser.id, { nom: newUser.name, email: newUser.email, role: newUser.role });
     return newUser;
   },
@@ -546,8 +608,23 @@ export const maritimeService = {
       is_active: data.is_active ?? true,
     };
     mockNavires.unshift(newNav);
+    localStorage.setItem(MOCK_NAVires_KEY, JSON.stringify(mockNavires));
     logAudit('CREATE', 'Navire', newNav.id, { imo: newNav.imo, nom: newNav.nom });
     return newNav;
+  },
+
+  async deleteNavire(id: number): Promise<void> {
+    try {
+      await api.delete(`/navires/${id}`);
+      return;
+    } catch {}
+
+    if (mockVisites.some((visite) => visite.navire_id === id)) {
+      throw new Error('Ce navire est lié à une escale et ne peut pas être supprimé.');
+    }
+    mockNavires = mockNavires.filter((navire) => navire.id !== id);
+    localStorage.setItem(MOCK_NAVires_KEY, JSON.stringify(mockNavires));
+    logAudit('DELETE', 'Navire', id, { motif: 'Suppression du navire' });
   },
 
   // Visites Maritimes
@@ -557,6 +634,7 @@ export const maritimeService = {
       if (res.data?.data?.data) return res.data.data.data;
     } catch {}
 
+    loadPersistedMockVisits();
     return mockVisites.map((v) => ({
       ...v,
       navire: mockNavires.find((n) => n.id === v.navire_id),
@@ -608,8 +686,26 @@ export const maritimeService = {
       dap: newDap,
     };
     mockVisites.unshift(newVisite);
+    persistMockVisits();
     logAudit('CREATE', 'VisiteMaritime', newId, { numero: numEscale, navire: newVisite.navire?.nom, port: 'Port de Casablanca (MACAS)' });
     return newVisite;
+  },
+
+  async deleteVisite(id: number): Promise<void> {
+    try {
+      await api.delete(`/visites/${id}`);
+      return;
+    } catch {}
+
+    const visite = mockVisites.find((item) => item.id === id);
+    if (!visite) throw new Error('Escale introuvable.');
+    mockVisites = mockVisites.filter((item) => item.id !== id);
+    mockDAPs = mockDAPs.filter((dap) => dap.visite_maritime_id !== id);
+    persistMockVisits();
+    logAudit('DELETE', 'VisiteMaritime', id, {
+      numero: visite.numero_visite,
+      dap_supprime: true,
+    });
   },
 
   async activerVisite(id: number, dateArriveeReelle: string): Promise<VisiteMaritime> {
@@ -621,6 +717,7 @@ export const maritimeService = {
     const visite = mockVisites.find((v) => v.id === id)!;
     visite.statut = 'active';
     visite.date_arrivee_reelle = dateArriveeReelle;
+    persistMockVisits();
     logAudit('STATUS_CHANGE', 'VisiteMaritime', id, { statut_precedent: 'prevue', nouveau_statut: 'active', ata: dateArriveeReelle, port: 'Port de Casablanca' });
     return visite;
   },
@@ -634,6 +731,7 @@ export const maritimeService = {
     const visite = mockVisites.find((v) => v.id === id)!;
     visite.statut = 'cloturee';
     visite.date_depart_reelle = dateDepartReelle;
+    persistMockVisits();
     logAudit('STATUS_CHANGE', 'VisiteMaritime', id, { statut_precedent: 'active', nouveau_statut: 'cloturee', atd: dateDepartReelle, port: 'Port de Casablanca' });
     return visite;
   },
@@ -647,6 +745,7 @@ export const maritimeService = {
     const visite = mockVisites.find((v) => v.id === id)!;
     visite.statut = 'annulee';
     visite.motif_annulation = motifAnnulation;
+    persistMockVisits();
     logAudit('CANCEL', 'VisiteMaritime', id, { statut_precedent: 'prevue', nouveau_statut: 'annulee', motif_annulation: motifAnnulation });
     return visite;
   },
