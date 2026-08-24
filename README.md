@@ -29,8 +29,8 @@ Plateforme web d'administration portuaire et de gestion des escales maritimes po
 
 ### 1. Cloner le dépôt
 ```bash
-git clone https://github.com/hajar-elhmamsi/navios-port-casablanca.git
-cd navios-port-casablanca
+git clone https://github.com/hajar-elhmamsi/app-marit.git
+cd app-marit
 ```
 
 ### 2. Démarrer le Frontend (React + Vite)
@@ -50,8 +50,8 @@ npm start
 
 ---
 
-## 👤 Auteur & Licence
+## 👤 Auteure unique & Licence
 
-* **Auteur** : Hajar Elhmamsi
+* **Auteure unique du site** : Hajar Elhmamsi
 * **GitHub** : [@hajar-elhmamsi](https://github.com/hajar-elhmamsi)
 * **Licence** : Propriétaire — Hajar Elhmamsi
