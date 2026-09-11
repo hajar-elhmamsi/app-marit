@@ -23,6 +23,7 @@ export const DAPsPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [search, setSearch] = useState<string>('');
   const [selectedStatut, setSelectedStatut] = useState<string>('all');
+  const [adminDAPDecisions, setAdminDAPDecisions] = useState<Record<number, string>>({});
 
   // Modals
   const [detailDAP, setDetailDAP] = useState<DAP | null>(null);
@@ -41,6 +42,9 @@ export const DAPsPage: React.FC = () => {
       const statutParam = selectedStatut === 'all' ? '' : selectedStatut;
       const data = await maritimeService.getDAPs(statutParam, search);
       setDaps(data);
+      try {
+        setAdminDAPDecisions(JSON.parse(localStorage.getItem('admin_dap_decisions') || '{}'));
+      } catch {}
     } catch (err) {
       showToast('Impossible de charger les demandes DAP', 'error');
     } finally {
@@ -230,6 +234,11 @@ export const DAPsPage: React.FC = () => {
 
                     <td className="px-5 py-3.5">
                       <Badge type="dap" status={dap.statut} />
+                      {adminDAPDecisions[dap.id] && (
+                        <span className={`mt-1 block text-[11px] font-semibold ${adminDAPDecisions[dap.id] === 'accepte' ? 'text-[#15803D]' : 'text-[#DC2626]'}`}>
+                          Marsa Maroc : {adminDAPDecisions[dap.id] === 'accepte' ? 'Accepté' : 'Refusé'}
+                        </span>
+                      )}
                     </td>
 
                     <td className="px-5 py-3.5 text-xs max-w-[220px]">

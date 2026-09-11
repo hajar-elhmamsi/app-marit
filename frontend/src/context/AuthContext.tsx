@@ -16,16 +16,20 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const normalizeInterfacePermissions = (user: User): User => ({
+  ...user,
+  permissions: user.role === 'agent_maritime'
+    ? DEFAULT_ROLE_PERMISSIONS.agent_maritime
+    : (user.permissions || DEFAULT_ROLE_PERMISSIONS[user.role] || []),
+});
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(() => {
     const saved = localStorage.getItem('maritime_user');
     if (saved) {
       try {
         const u = JSON.parse(saved);
-        if (!u.permissions) {
-          u.permissions = DEFAULT_ROLE_PERMISSIONS[u.role as keyof typeof DEFAULT_ROLE_PERMISSIONS] || [];
-        }
-        return u;
+        return normalizeInterfacePermissions(u);
       } catch {}
     }
     return null;
@@ -37,6 +41,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const can = (permissionCode: string): boolean => {
     if (!user) return false;
     if (user.role === 'agent_maritime' && permissionCode === 'visites.delete') return true;
+    if (user.role === 'agent_maritime') {
+      return DEFAULT_ROLE_PERMISSIONS.agent_maritime.includes(permissionCode);
+    }
     if (user.role === 'admin' && permissionCode === 'visites.create') return false;
     if (user.role === 'admin') return true; // Admin has access to all other functions
     const permissions = user.permissions || DEFAULT_ROLE_PERMISSIONS[user.role as keyof typeof DEFAULT_ROLE_PERMISSIONS] || [];
@@ -47,9 +54,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(true);
     try {
       const res = await maritimeService.login(email, password);
-      setUser(res.user);
+      const normalizedUser = normalizeInterfacePermissions(res.user);
+      setUser(normalizedUser);
       setToken(res.token);
-      localStorage.setItem('maritime_user', JSON.stringify(res.user));
+      localStorage.setItem('maritime_user', JSON.stringify(normalizedUser));
       localStorage.setItem('maritime_token', res.token);
       return true;
     } catch {
@@ -99,9 +107,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         permissions: DEFAULT_ROLE_PERMISSIONS.agent_maritime,
       };
     }
-    setUser(demoUser);
+    const normalizedUser = normalizeInterfacePermissions(demoUser);
+    setUser(normalizedUser);
     setToken('demo_token_' + role);
-    localStorage.setItem('maritime_user', JSON.stringify(demoUser));
+    localStorage.setItem('maritime_user', JSON.stringify(normalizedUser));
     localStorage.setItem('maritime_token', 'demo_token_' + role);
   };
 
@@ -109,7 +118,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const saved = localStorage.getItem('maritime_user');
     if (saved) {
       try {
-        setUser(JSON.parse(saved));
+        setUser(normalizeInterfacePermissions(JSON.parse(saved)));
       } catch {}
     }
   };

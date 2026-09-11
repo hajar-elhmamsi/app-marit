@@ -146,6 +146,16 @@ export const NaviresPage: React.FC = () => {
     }
   };
 
+  const handleValidateANP = async (navire: Navire) => {
+    try {
+      await maritimeService.validerNavireANP(navire.id);
+      showToast(`Le navire ${navire.nom} (IMO ${navire.imo}) est validé par l'ANP.`, 'success', 'Navire validé');
+      loadNavires();
+    } catch {
+      showToast('Impossible de valider ce navire.', 'error');
+    }
+  };
+
   const formatVesselType = (type: Navire['type_navire']) => {
     switch (type) {
       case 'porte_conteneurs': return 'Porte-conteneurs';
@@ -282,12 +292,29 @@ export const NaviresPage: React.FC = () => {
                     </td>
 
                     <td className="px-5 py-3.5">
-                      <Badge type="active" status={nav.is_active} />
+                      <div className="space-y-1">
+                        <Badge type="active" status={nav.is_active} />
+                        {nav.validation_anp === 'en_attente' && (
+                          <div className="text-[11px] font-semibold text-[#B45309]">Validation ANP en attente</div>
+                        )}
+                        {nav.validation_anp === 'valide' && (
+                          <div className="text-[11px] font-semibold text-[#15803D]">Validé par ANP</div>
+                        )}
+                      </div>
                     </td>
 
                     <td className="px-5 py-3.5 text-right">
                       {can('navires.manage') && (
                         <div className="flex items-center justify-end gap-2">
+                          {nav.validation_anp === 'en_attente' && can('visites.activate') && (
+                            <button
+                              onClick={() => handleValidateANP(nav)}
+                              className="px-2.5 py-1 rounded-md text-xs font-semibold text-[#15803D] bg-[#DCFCE7] hover:bg-green-200 border border-green-200 transition-colors"
+                              title="Valider par l'ANP"
+                            >
+                              Valider ANP
+                            </button>
+                          )}
                           <button
                             onClick={() => handleOpenEdit(nav)}
                             className="p-1.5 rounded-lg text-[#64748B] hover:text-[#0B4F8A] hover:bg-[#EAF4FB] transition-colors"

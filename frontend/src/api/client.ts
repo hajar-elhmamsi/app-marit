@@ -2,6 +2,7 @@ import axios, { AxiosError } from 'axios';
 import { User, Port, Terminal, Navire, VisiteMaritime, DAP, AuditLog, ApiResponse, PaginatedData, Permission, RoleInfo, UserRole } from '../types';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+export const PRIMARY_CONSIGNATAIRE_EMAIL = 'agent@portcasablanca.ma';
 
 export const api = axios.create({
   baseURL: API_URL,
@@ -388,6 +389,9 @@ export const maritimeService = {
     } catch {}
 
     const role = data.role || 'agent_maritime';
+    if (role === 'agent_maritime' && data.email?.toLowerCase() !== PRIMARY_CONSIGNATAIRE_EMAIL) {
+      throw new Error(`Un seul consignataire est autorisé : ${PRIMARY_CONSIGNATAIRE_EMAIL}.`);
+    }
     if (!data.email || !data.password) {
       throw new Error('Un email et un mot de passe sont obligatoires.');
     }
@@ -402,7 +406,9 @@ export const maritimeService = {
       is_active: data.is_active ?? true,
       telephone: data.telephone || '+212 5 22 00 00 00',
       service: data.service || 'Consignation Portuaire Casablanca',
-      permissions: data.permissions || DEFAULT_ROLE_PERMISSIONS[role],
+      permissions: role === 'agent_maritime'
+        ? DEFAULT_ROLE_PERMISSIONS.agent_maritime
+        : (data.permissions || DEFAULT_ROLE_PERMISSIONS[role]),
       created_at: new Date().toISOString().replace('T', ' ').substring(0, 16),
       last_login_at: 'Jamais',
     };
@@ -435,8 +441,10 @@ export const maritimeService = {
 
     const user = mockUsers.find((u) => u.id === id);
     if (!user) throw new Error('Utilisateur non trouvé');
-    user.permissions = permissions;
-    logAudit('PERMISSIONS_UPDATE', 'User', id, { permissions_count: permissions.length, permissions });
+    user.permissions = user.role === 'agent_maritime'
+      ? DEFAULT_ROLE_PERMISSIONS.agent_maritime
+      : permissions;
+    logAudit('PERMISSIONS_UPDATE', 'User', id, { permissions_count: user.permissions.length, permissions: user.permissions });
     return user;
   },
 
@@ -606,11 +614,28 @@ export const maritimeService = {
       tirant_eau_m: data.tirant_eau_m || 10,
       jauge_brute: data.jauge_brute || 50000,
       is_active: data.is_active ?? true,
+      validation_anp: data.validation_anp || 'valide',
+      souscription_at: data.souscription_at,
     };
     mockNavires.unshift(newNav);
     localStorage.setItem(MOCK_NAVires_KEY, JSON.stringify(mockNavires));
     logAudit('CREATE', 'Navire', newNav.id, { imo: newNav.imo, nom: newNav.nom });
     return newNav;
+  },
+
+  async validerNavireANP(id: number): Promise<Navire> {
+    try {
+      const res = await api.post<ApiResponse<Navire>>(`/navires/${id}/valider`, {});
+      if (res.data?.data) return res.data.data;
+    } catch {}
+
+    const navire = mockNavires.find((item) => item.id === id);
+    if (!navire) throw new Error('Navire introuvable.');
+    navire.validation_anp = 'valide';
+    navire.is_active = true;
+    localStorage.setItem(MOCK_NAVires_KEY, JSON.stringify(mockNavires));
+    logAudit('STATUS_CHANGE', 'Navire', id, { validation: 'valide', autorite: 'ANP' });
+    return navire;
   },
 
   async deleteNavire(id: number): Promise<void> {
@@ -675,6 +700,7 @@ export const maritimeService = {
       id: newId,
       numero_visite: numEscale,
       navire_id: data.navire_id || 1,
+      operateur: data.operateur as VisiteMaritime['operateur'] || 'ANP',
       terminal_id: data.terminal_id || 1,
       agent_id: 2,
       date_arrivee_estimee: data.date_arrivee_estimee || '2026-08-20 08:00',
@@ -776,6 +802,7 @@ export const maritimeService = {
     const dap = mockDAPs.find((d) => d.id === id)!;
     dap.statut = 'envoye';
     if (remarques) dap.remarques = remarques;
+    persistMockVisits();
     logAudit('STATUS_CHANGE', 'DAP', id, { statut_precedent: 'brouillon', nouveau_statut: 'envoye', port: 'Port de Casablanca' });
     return dap;
   },
@@ -790,6 +817,7 @@ export const maritimeService = {
     dap.statut = 'accepte';
     dap.date_traitement = new Date().toISOString().replace('T', ' ').substring(0, 16);
     dap.motif_refus = null;
+    persistMockVisits();
     logAudit('STATUS_CHANGE', 'DAP', id, { statut_precedent: 'envoye', nouveau_statut: 'accepte', decision: 'Autorisation d\'accostage validée par Capitainerie Casablanca' });
     return dap;
   },
@@ -804,6 +832,7 @@ export const maritimeService = {
     dap.statut = 'refuse';
     dap.date_traitement = new Date().toISOString().replace('T', ' ').substring(0, 16);
     dap.motif_refus = motifRefus;
+    persistMockVisits();
     logAudit('STATUS_CHANGE', 'DAP', id, { statut_precedent: 'envoye', nouveau_statut: 'refuse', motif_refus: motifRefus });
     return dap;
   },

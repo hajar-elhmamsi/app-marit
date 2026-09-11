@@ -68,6 +68,8 @@ export interface Navire {
   tirant_eau_m: number;
   jauge_brute: number;
   is_active: boolean;
+  validation_anp?: 'en_attente' | 'valide' | 'refusee';
+  souscription_at?: string;
   created_at?: string;
   updated_at?: string;
 }
@@ -78,6 +80,8 @@ export interface VisiteMaritime {
   id: number;
   numero_visite: string;
   navire_id: number;
+  operateur?: 'ANP' | 'Marsa Maroc';
+  validation_capitainerie?: 'en_attente' | 'valide' | 'refuse';
   terminal_id: number;
   agent_id: number;
   date_arrivee_estimee: string;

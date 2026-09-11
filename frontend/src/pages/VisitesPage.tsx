@@ -26,6 +26,7 @@ export const VisitesPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [search, setSearch] = useState<string>('');
   const [selectedStatut, setSelectedStatut] = useState<string>('all');
+  const [adminAvisDecisions, setAdminAvisDecisions] = useState<Record<number, string>>({});
 
   // Modals
   const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
@@ -44,6 +45,8 @@ export const VisitesPage: React.FC = () => {
 
   // Form state
   const [formData, setFormData] = useState({
+    imo: '',
+    operateur: 'ANP' as 'ANP' | 'Marsa Maroc',
     navire_id: 0,
     terminal_id: 0,
     date_arrivee_estimee: '',
@@ -64,7 +67,10 @@ export const VisitesPage: React.FC = () => {
         maritimeService.getTerminals(),
       ]);
       setVisites(visList);
-      setNavires(navList.filter((n) => n.is_active));
+      try {
+        setAdminAvisDecisions(JSON.parse(localStorage.getItem('admin_avis_decisions') || '{}'));
+      } catch {}
+      setNavires(navList);
       setTerminals(termList.filter((t) => t.is_active));
     } catch (err) {
       showToast('Impossible de charger les visites maritimes', 'error');
@@ -88,7 +94,9 @@ export const VisitesPage: React.FC = () => {
     const etd = new Date(now.getTime() + 72 * 3600 * 1000).toISOString().slice(0, 16);
 
     setFormData({
-      navire_id: navires[0]?.id || 1,
+      imo: '',
+      operateur: 'ANP',
+      navire_id: 0,
       terminal_id: terminals[0]?.id || 1,
       date_arrivee_estimee: eta,
       date_depart_estimee: etd,
@@ -99,10 +107,13 @@ export const VisitesPage: React.FC = () => {
 
   const validateForm = () => {
     const errors: Record<string, string> = {};
-    if (!formData.navire_id) errors.navire_id = 'Veuillez sélectionner un navire.';
-    if (!formData.terminal_id) errors.terminal_id = 'Veuillez sélectionner un terminal.';
-    if (!formData.date_arrivee_estimee) errors.date_arrivee_estimee = 'L\'ETA est obligatoire.';
-    if (!formData.date_depart_estimee) errors.date_depart_estimee = 'L\'ETD est obligatoire.';
+    const imo = formData.imo.trim();
+    const navire = navires.find((item) => item.imo === imo);
+    if (!/^\d{7}$/.test(imo)) errors.imo = 'L\'IMO doit comporter exactement 7 chiffres.';
+    if (!navire) errors.imo = 'IMO inconnu. Utilisez « Souscrire » pour enregistrer le navire auprès de l\'ANP.';
+    if (navire && navire.validation_anp === 'en_attente') errors.imo = 'La souscription de ce navire est encore en attente de validation ANP.';
+    if (navire && navire.validation_anp === 'refusee') errors.imo = 'La souscription de ce navire a été refusée par l\'ANP.';
+    if (navire && navire.validation_anp !== 'en_attente' && navire.validation_anp !== 'refusee') formData.navire_id = navire.id;
 
     if (formData.date_arrivee_estimee && formData.date_depart_estimee) {
       if (new Date(formData.date_depart_estimee) <= new Date(formData.date_arrivee_estimee)) {
@@ -124,6 +135,37 @@ export const VisitesPage: React.FC = () => {
       loadData();
     } catch (err) {
       showToast('Erreur lors de la planification de l\'escale.', 'error');
+    }
+  };
+
+  const handleSubscribeVessel = async () => {
+    const imo = formData.imo.trim();
+    if (!/^\d{7}$/.test(imo)) {
+      setFormErrors({ imo: 'L\'IMO doit comporter exactement 7 chiffres.' });
+      return;
+    }
+    if (navires.some((item) => item.imo === imo)) {
+      setFormErrors({ imo: 'Cet IMO existe déjà dans le registre. Sélectionnez-le pour continuer.' });
+      return;
+    }
+    try {
+      await maritimeService.createNavire({
+        imo,
+        nom: 'NAVIRE À VALIDER PAR ANP',
+        pavillon: 'À renseigner',
+        type_navire: 'porte_conteneurs',
+        longueur_m: 0,
+        tirant_eau_m: 0,
+        jauge_brute: 0,
+        is_active: false,
+        validation_anp: 'en_attente',
+        souscription_at: new Date().toISOString(),
+      });
+      showToast(`Souscription de l'IMO ${imo} envoyée à l'ANP.`, 'success', 'Navire en attente de validation');
+      setIsCreateModalOpen(false);
+      await loadData();
+    } catch {
+      showToast('Impossible d\'envoyer la souscription à l\'ANP.', 'error');
     }
   };
 
@@ -219,7 +261,7 @@ export const VisitesPage: React.FC = () => {
             className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#0B4F8A] hover:bg-[#083B68] text-white font-semibold text-sm rounded-lg shadow-sm transition-colors self-start sm:self-auto"
           >
             <Plus size={18} />
-            <span>Planifier une escale</span>
+            <span>Créer un avis d’arrivée</span>
           </button>
         )}
       </div>
@@ -326,6 +368,11 @@ export const VisitesPage: React.FC = () => {
 
                     <td className="px-5 py-3.5">
                       <Badge type="visite" status={visite.statut} />
+                      {adminAvisDecisions[visite.id] && (
+                        <span className={`mt-1 block text-[11px] font-semibold ${adminAvisDecisions[visite.id] === 'admin_accepte' ? 'text-[#15803D]' : 'text-[#DC2626]'}`}>
+                          Marsa Maroc : {adminAvisDecisions[visite.id] === 'admin_accepte' ? 'Accepté' : 'Refusé'}
+                        </span>
+                      )}
                       {visite.statut === 'annulee' && visite.motif_annulation && (
                         <div className="text-xs text-[#DC2626] mt-0.5 max-w-[160px] truncate" title={visite.motif_annulation}>
                           Motif: {visite.motif_annulation}
@@ -408,68 +455,56 @@ export const VisitesPage: React.FC = () => {
       <Modal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
-        title="Planifier une visite maritime"
+        title="Avis d’arrivée"
       >
         <form onSubmit={handleCreateVisite} className="space-y-4">
           <div>
-            <label className="form-label">Navire *</label>
-            <select
-              value={formData.navire_id}
-              onChange={(e) => setFormData({ ...formData, navire_id: Number(e.target.value) })}
-              className="form-input"
-            >
-              {navires.map((n) => (
-                <option key={n.id} value={n.id}>
-                  {n.nom} (IMO {n.imo} - {n.pavillon})
-                </option>
-              ))}
-            </select>
-            {formErrors.navire_id && <p className="mt-1 text-xs text-[#DC2626]">{formErrors.navire_id}</p>}
+            <label className="form-label">IMO du navire *</label>
+            <input
+              value={formData.imo}
+              onChange={(e) => setFormData({ ...formData, imo: e.target.value.replace(/\D/g, '').slice(0, 7) })}
+              className="form-input font-mono"
+              placeholder="Ex. 9367000"
+              inputMode="numeric"
+              maxLength={7}
+            />
+            {formErrors.imo && <p className="mt-1 text-xs text-[#DC2626]">{formErrors.imo}</p>}
           </div>
 
           <div>
-            <label className="form-label">Terminal d'accostage & Port *</label>
+            <label className="form-label">Opérateur concerné *</label>
             <select
-              value={formData.terminal_id}
-              onChange={(e) => setFormData({ ...formData, terminal_id: Number(e.target.value) })}
+              value={formData.operateur}
+              onChange={(e) => setFormData({ ...formData, operateur: e.target.value as 'ANP' | 'Marsa Maroc' })}
               className="form-input"
             >
-              {terminals.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.nom} ({t.port?.nom} - {t.type_terminal})
-                </option>
-              ))}
+              <option value="ANP">ANP</option>
+              <option value="Marsa Maroc">Marsa Maroc</option>
             </select>
-            {formErrors.terminal_id && <p className="mt-1 text-xs text-[#DC2626]">{formErrors.terminal_id}</p>}
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="form-label">Date & Heure d'Arrivée (ETA) *</label>
-              <input
-                type="datetime-local"
-                value={formData.date_arrivee_estimee}
-                onChange={(e) => setFormData({ ...formData, date_arrivee_estimee: e.target.value })}
-                className="form-input font-mono"
-              />
-              {formErrors.date_arrivee_estimee && <p className="mt-1 text-xs text-[#DC2626]">{formErrors.date_arrivee_estimee}</p>}
-            </div>
-
-            <div>
-              <label className="form-label">Date & Heure de Départ (ETD) *</label>
-              <input
-                type="datetime-local"
-                value={formData.date_depart_estimee}
-                onChange={(e) => setFormData({ ...formData, date_depart_estimee: e.target.value })}
-                className="form-input font-mono"
-              />
-              {formErrors.date_depart_estimee && <p className="mt-1 text-xs text-[#DC2626]">{formErrors.date_depart_estimee}</p>}
-            </div>
           </div>
 
           <div className="p-3 rounded-lg bg-[#EAF4FB] text-[#0B4F8A] border border-blue-200 text-xs">
-            ℹ️ La création de l'escale générera automatiquement une <strong>Demande d'Accès Portuaire (DAP)</strong> au statut <em>Brouillon</em>.
+            L’avis d’arrivée est identifié par l’IMO. L’enregistrement de l’avis créera ensuite l’escale et la DAP associée.
           </div>
+
+          {formData.imo.length === 7 && !navires.some((item) => item.imo === formData.imo) && (
+            <div className="p-3 rounded-lg bg-[#FFF7ED] text-[#9A3412] border border-orange-200 text-xs space-y-2">
+              <p><strong>IMO inconnu dans le registre du port.</strong> Une souscription est nécessaire avant de pouvoir valider l’avis d’arrivée.</p>
+              <button
+                type="button"
+                onClick={handleSubscribeVessel}
+                className="px-3 py-2 rounded-lg bg-[#B45309] hover:bg-[#92400E] text-white font-semibold text-xs"
+              >
+                Souscrire le navire auprès de l’ANP
+              </button>
+            </div>
+          )}
+
+          {navires.find((item) => item.imo === formData.imo)?.validation_anp === 'en_attente' && (
+            <div className="p-3 rounded-lg bg-[#FFF7ED] text-[#9A3412] border border-orange-200 text-xs">
+              Souscription envoyée. L’avis d’arrivée sera disponible après validation du navire par l’ANP.
+            </div>
+          )}
 
           <div className="mt-6 pt-4 border-t border-[#E2E8F0] flex items-center justify-end gap-3">
             <button
@@ -483,7 +518,7 @@ export const VisitesPage: React.FC = () => {
               type="submit"
               className="px-5 py-2 text-sm font-semibold rounded-lg bg-[#0B4F8A] hover:bg-[#083B68] text-white shadow-sm"
             >
-              Enregistrer l'escale
+              Valider l’avis d’arrivée
             </button>
           </div>
         </form>
