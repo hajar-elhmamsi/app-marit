@@ -18,7 +18,7 @@ export const Header: React.FC = () => {
             <div className="text-xs font-bold text-[#172B4D] leading-tight truncate" title={user?.name}>{user?.name}</div>
             <div className="text-[11px] text-[#64748B] capitalize truncate">
               {user?.role === 'admin'
-                ? 'Direction ANP'
+                ? 'Directeur Marsa Maroc'
                 : user?.role === 'capitainerie'
                 ? 'Capitainerie VTS'
                 : 'Consignataire Agréé'}

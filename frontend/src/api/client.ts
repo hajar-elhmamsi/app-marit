@@ -66,12 +66,12 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<UserRole, string[]> = {
 let mockUsers: User[] = [
   {
     id: 1,
-    name: 'Direction Régionale ANP Casablanca',
+    name: 'Direction Régionale Marsa Maroc Casablanca',
     email: 'admin@portcasablanca.ma',
     role: 'admin',
     is_active: true,
     telephone: '+212 5 22 23 45 00',
-    service: 'Agence Nationale des Ports (ANP) - Direction Système',
+    service: 'Marsa Maroc - Direction Régionale Casablanca',
     permissions: DEFAULT_ROLE_PERMISSIONS.admin,
     created_at: '2026-01-01 08:00',
     last_login_at: '2026-08-15 17:15',
@@ -469,8 +469,8 @@ export const maritimeService = {
     return [
       {
         role: 'admin',
-        label: 'Direction Régionale ANP Casablanca',
-        description: 'Administration globale du système portuaire, supervision du réseau des ports marocains, audit des escales et paramétrage des accès.',
+        label: 'Direction Régionale Marsa Maroc Casablanca',
+        description: 'Administration globale des opérations Marsa Maroc, supervision des quais, des escales et paramétrage des accès.',
         users_count: mockUsers.filter((u) => u.role === 'admin').length,
         permissions: DEFAULT_ROLE_PERMISSIONS.admin,
       },

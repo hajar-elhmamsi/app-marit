@@ -18,6 +18,10 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const normalizeInterfacePermissions = (user: User): User => ({
   ...user,
+  ...(user.role === 'admin' ? {
+    name: 'Direction Régionale Marsa Maroc Casablanca',
+    service: 'Marsa Maroc - Direction Régionale Casablanca',
+  } : {}),
   permissions: user.role === 'agent_maritime'
     ? DEFAULT_ROLE_PERMISSIONS.agent_maritime
     : (user.permissions || DEFAULT_ROLE_PERMISSIONS[user.role] || []),
@@ -79,11 +83,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (role === 'admin') {
       demoUser = {
         id: 1,
-        name: 'Direction Régionale ANP Casablanca',
+        name: 'Direction Régionale Marsa Maroc Casablanca',
         email: 'admin@portcasablanca.ma',
         role: 'admin',
         is_active: true,
-        service: 'Agence Nationale des Ports (ANP)',
+        service: 'Marsa Maroc - Direction Régionale Casablanca',
         permissions: DEFAULT_ROLE_PERMISSIONS.admin,
       };
     } else if (role === 'capitainerie') {
