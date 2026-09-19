@@ -131,7 +131,7 @@ export const LoginPage: React.FC = () => {
 
         {/* Minimal Institutional Footer */}
         <div className="mt-6 text-center text-xs text-[#94A3B8]">
-          NAVIOS PortCall • Agence Nationale des Ports (ANP)
+          NAVIOS PortCall • Marsa Maroc
         </div>
 
       </div>
