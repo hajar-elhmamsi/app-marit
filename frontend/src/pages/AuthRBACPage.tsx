@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { maritimeService, ALL_PERMISSIONS, DEFAULT_ROLE_PERMISSIONS } from '../api/client';
 import { User, Permission, RoleInfo, UserRole } from '../types';
 import { Badge } from '../components/UI/Badge';
@@ -242,6 +242,10 @@ export const AuthRBACPage: React.FC = () => {
     return acc;
   }, {});
 
+  const getPermissionLabel = (code: string) => {
+    return ALL_PERMISSIONS.find((perm) => perm.code === code)?.label || code;
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -437,7 +441,7 @@ export const AuthRBACPage: React.FC = () => {
 
                           <td className="px-5 py-3.5 text-right">
                             <div className="flex items-center justify-end gap-2">
-                              {/* Bouton Clé: Gérer les permissions individuelles */}
+                              {/* Bouton Clé : Gérer les permissions individuelles */}
                               <button
                                 onClick={() => handleOpenPermissionsModal(user)}
                                 className="px-2.5 py-1 text-xs font-semibold rounded-md bg-[#EAF4FB] text-[#0B4F8A] hover:bg-blue-100 border border-blue-200 flex items-center gap-1.5 transition-colors shadow-sm"
@@ -520,7 +524,6 @@ export const AuthRBACPage: React.FC = () => {
 
                     <td className="px-5 py-3.5">
                       <div className="font-bold text-[#172B4D]">{perm.label}</div>
-                      <div className="text-xs font-mono text-[#94A3B8]">{perm.code}</div>
                     </td>
 
                     <td className="px-5 py-3.5 text-xs text-[#64748B]">
@@ -592,8 +595,8 @@ export const AuthRBACPage: React.FC = () => {
                 </div>
                 <div className="flex flex-wrap gap-1.5">
                   {roleInfo.permissions.map((p) => (
-                    <span key={p} className="px-2 py-0.5 rounded bg-[#F8FAFC] text-[11px] font-mono text-[#0B4F8A] border border-[#E2E8F0]">
-                      {p}
+                    <span key={p} className="px-2 py-0.5 rounded bg-[#F8FAFC] text-[11px] font-medium text-[#0B4F8A] border border-[#E2E8F0]">
+                      {getPermissionLabel(p)}
                     </span>
                   ))}
                 </div>
@@ -690,9 +693,6 @@ export const AuthRBACPage: React.FC = () => {
                             <div className="flex items-center gap-2">
                               <span className={`font-semibold ${isChecked ? 'text-[#172B4D]' : 'text-[#64748B]'}`}>
                                 {perm.label}
-                              </span>
-                              <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-[#F1F5F9] text-[#64748B]">
-                                {perm.code}
                               </span>
                             </div>
                             <p className="text-[#64748B] mt-0.5">{perm.description}</p>
@@ -847,3 +847,4 @@ export const AuthRBACPage: React.FC = () => {
     </div>
   );
 };
+
